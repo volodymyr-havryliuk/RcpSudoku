@@ -69,12 +69,8 @@ public class SudokuDocument implements ISudokuDokument {
         // Clear the base
 		base.clear(true);
 
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			builder.setErrorHandler(getErrorHandler());
-			document = builder.parse(savefile);
-
+			getParsedDocument();
 			// Validate the document
 			Node documentElement = document.getDocumentElement();
 			if (documentElement.getNodeName().equals(SUDOKU) == false) {
@@ -172,7 +168,14 @@ public class SudokuDocument implements ISudokuDokument {
 		base.cellsChanged(true);
 	}
 
-    private void validateCanReadSaveFile() throws SudokuException {
+	private void getParsedDocument() throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		builder.setErrorHandler(getErrorHandler());
+		document = builder.parse(savefile);
+	}
+
+	private void validateCanReadSaveFile() throws SudokuException {
         if (savefile.canRead() == false) {
             throw new SudokuException("Document cound not be found: "
                     + savefile.getAbsolutePath(),
