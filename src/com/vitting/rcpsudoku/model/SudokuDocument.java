@@ -64,14 +64,9 @@ public class SudokuDocument implements ISudokuDokument {
 		int row = 0;
 		int column = 0;
 
-		if (savefile.canRead() == false) {
-			throw new SudokuException("Document cound not be found: "
-					+ savefile.getAbsolutePath(),
-					SudokuException.DISPOSITION_CONTINUE,
-					SudokuException.SEVERITY_WARNING);
-		}
+        validateCanReadSaveFile();
 
-		// Clear the base
+        // Clear the base
 		base.clear(true);
 
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -177,7 +172,16 @@ public class SudokuDocument implements ISudokuDokument {
 		base.cellsChanged(true);
 	}
 
-	private ErrorHandler getErrorHandler() {
+    private void validateCanReadSaveFile() throws SudokuException {
+        if (savefile.canRead() == false) {
+            throw new SudokuException("Document cound not be found: "
+                    + savefile.getAbsolutePath(),
+                    SudokuException.DISPOSITION_CONTINUE,
+                    SudokuException.SEVERITY_WARNING);
+        }
+    }
+
+    private ErrorHandler getErrorHandler() {
 		return new ErrorHandler() {
 
 			// Treat warnings as fatal
