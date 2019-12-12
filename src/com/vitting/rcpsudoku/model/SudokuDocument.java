@@ -31,6 +31,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -76,26 +77,7 @@ public class SudokuDocument implements ISudokuDokument {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
 			DocumentBuilder builder = factory.newDocumentBuilder();
-			builder.setErrorHandler(new org.xml.sax.ErrorHandler() {
-
-				// Treat warnings as fatal
-				public void warning(SAXParseException exception)
-						throws SAXException {
-					throw exception;
-				}
-
-				// Treat warnings as fatal
-				public void error(SAXParseException exception)
-						throws SAXException {
-					throw exception;
-				}
-
-				public void fatalError(SAXParseException exception)
-						throws SAXException {
-					// Ignore fatal errors (an exception is guarantied)
-				}
-
-			});
+			builder.setErrorHandler(getErrorHandler());
 			document = builder.parse(savefile);
 
 			// Validate the document
@@ -193,6 +175,29 @@ public class SudokuDocument implements ISudokuDokument {
 		}
 		// Notify all cells
 		base.cellsChanged(true);
+	}
+
+	private ErrorHandler getErrorHandler() {
+		return new ErrorHandler() {
+
+			// Treat warnings as fatal
+			public void warning(SAXParseException exception)
+					throws SAXException {
+				throw exception;
+			}
+
+			// Treat warnings as fatal
+			public void error(SAXParseException exception)
+					throws SAXException {
+				throw exception;
+			}
+
+			public void fatalError(SAXParseException exception)
+					throws SAXException {
+				// Ignore fatal errors (an exception is guarantied)
+			}
+
+		};
 	}
 
 	/**
