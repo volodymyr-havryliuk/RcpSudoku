@@ -25,12 +25,6 @@ final public class Rule4 {
 	    for (int i = 0; i < sCells.length; i++) {
 		sCells[i] = new SCell((MCell) unsolved.elementAt(i));
 	    }
-
-        new Rule4Step(sCells).runStep();
-	    //DEBUG -- Rule4Step returned
-//	    {
-//	      System.out.println("     Rule4Step returned: " + result);
-//	    }
 	    return new Rule4Step(sCells).runStep();
 	}
 
