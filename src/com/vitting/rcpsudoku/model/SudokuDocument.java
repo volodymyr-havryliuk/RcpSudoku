@@ -99,22 +99,7 @@ public class SudokuDocument implements ISudokuDokument {
 					MCell cell = base.getCell(row, column);
 					node = cellAttributes.getNamedItem(VALUE);
 					if (node != null) {
-
-						// Convert the string to a BitSet
-						String stringValue = node.getNodeValue();
-						BitSet value = new BitSet();
-						if (stringValue.length() < 9) {
-							for (int j = 0; j < stringValue.length(); j++) {
-								int x = Character.getNumericValue(stringValue
-										.charAt(j));
-								if ((x > 0) && (x < 10)) {
-									value.set(x - 1);
-								}
-							}
-						} else {
-							// The cell is empty
-							value.set(0, 9);
-						}
+						BitSet value = getBitSet(node);
 						cell.setValue(value);
 					}
 					node = cellAttributes.getNamedItem(STATUS);
@@ -148,7 +133,26 @@ public class SudokuDocument implements ISudokuDokument {
 		base.cellsChanged(true);
 	}
 
-    private void validateDocument(Node documentElement) throws SudokuException {
+	private BitSet getBitSet(Node node) {
+		String stringValue = node.getNodeValue();
+		BitSet value = new BitSet();
+
+		if (stringValue.length() < 9) {
+			for (int j = 0; j < stringValue.length(); j++) {
+				int x = Character.getNumericValue(stringValue
+						.charAt(j));
+				if ((x > 0) && (x < 10)) {
+					value.set(x - 1);
+				}
+			}
+		} else {
+			// The cell is empty
+			value.set(0, 9);
+		}
+		return value;
+	}
+
+	private void validateDocument(Node documentElement) throws SudokuException {
         if (documentElement.getNodeName().equals(SUDOKU) == false) {
             throw new SudokuException(" Incorrect file format",
                     SudokuException.SEVERITY_ERROR,
