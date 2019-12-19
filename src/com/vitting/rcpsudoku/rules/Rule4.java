@@ -1,16 +1,3 @@
-/**
- * Copyright (c) 2006 Henning Vitting and others.
- * All rights reserved.
- *
- * This program and the accompanying materials are made available under 
- * the terms of the Eclipse Public License v1.0 which accompanies this 
- * distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- * 
- * Contributors:
- *     Henning Vitting - Initial API and implementation
- *   
- */
 package com.vitting.rcpsudoku.rules;
 
 import java.util.BitSet;
@@ -39,13 +26,12 @@ final public class Rule4 {
 		sCells[i] = new SCell((MCell) unsolved.elementAt(i));
 	    }
 
-	    Rule4Step step = new Rule4Step(sCells);
-	    int result = step.runStep();
+        new Rule4Step(sCells).runStep();
 	    //DEBUG -- Rule4Step returned
 //	    {
 //	      System.out.println("     Rule4Step returned: " + result);
 //	    }
-	    return result;
+	    return new Rule4Step(sCells).runStep();
 	}
 
 	private Vector getVector() {
@@ -145,7 +131,7 @@ final public class Rule4 {
     }
 
     /**
-         * 
+         *
          * SCell (SolverCell) holds solver information for a Sudoku cell
          */
     final public class SCell {
@@ -157,7 +143,7 @@ final public class Rule4 {
 
 	/**
          * Constructor
-         * 
+         *
          * @param cell
          *                MCell - the original game cell
          */
@@ -169,7 +155,7 @@ final public class Rule4 {
 
 	/**
          * Try the next possible solution for the cell
-         * 
+         *
          * @return boolean - true if move possible
          */
 	public boolean moveForward() {
