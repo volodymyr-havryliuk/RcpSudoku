@@ -32,22 +32,7 @@ final public class Rule4 {
     static SudokuBase base = SudokuBase.getSingleInstance();
 
 	public int run() throws SudokuException {
-	    Vector unsolved = new Vector(); // A Vector of unsolved MCells
-
-	    // Build the unsolved Vector
-	    for (int x = 0; x < 9; x++) {
-		for (int y = 0; y < 9; y++) {
-		    MCell cell = base.getCell(x, y);
-		    if (cell.isValueFound() == false) {
-			unsolved.add(cell);
-		    }
-		}
-	    }
-	    //DEBUG -- Running Rule 4
-//	    {
-//	       System.out.println("Running Rule 4, unsolved size: "
-//		    + unsolved.size());
-//	    }
+		Vector unsolved = getVector();
 	    // Create the first Rule4Step and run it
 	    SCell[] sCells = new SCell[unsolved.size()];
 	    for (int i = 0; i < sCells.length; i++) {
@@ -61,6 +46,21 @@ final public class Rule4 {
 //	      System.out.println("     Rule4Step returned: " + result);
 //	    }
 	    return result;
+	}
+
+	private Vector getVector() {
+		Vector unsolved = new Vector(); // A Vector of unsolved MCells
+
+		// Build the unsolved Vector
+		for (int x = 0; x < 9; x++) {
+		for (int y = 0; y < 9; y++) {
+			MCell cell = base.getCell(x, y);
+			if (cell.isValueFound() == false) {
+			unsolved.add(cell);
+			}
+		}
+		}
+		return unsolved;
 	}
 
 	final public class Rule4Step {
