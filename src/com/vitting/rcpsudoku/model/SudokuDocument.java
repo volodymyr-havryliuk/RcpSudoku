@@ -73,29 +73,9 @@ public class SudokuDocument implements ISudokuDokument {
 			getParsedDocument();
 			// Validate the document
 			Node documentElement = document.getDocumentElement();
-			if (documentElement.getNodeName().equals(SUDOKU) == false) {
-				throw new SudokuException(" Incorrect file format",
-						SudokuException.SEVERITY_ERROR,
-						SudokuException.DISPOSITION_CONTINUE);
-			}
-			NamedNodeMap bsdAttributes = documentElement.getAttributes();
-			Node version = bsdAttributes.getNamedItem(DOCUMENT_VERSION);
-			if (version == null) {
-				throw new SudokuException("File descriptor missing",
-						SudokuException.SEVERITY_ERROR,
-						SudokuException.DISPOSITION_CONTINUE);
-			}
-			// Only version 1.0 supported
-			if (version.getNodeValue().compareTo(CURRENT_DOCUMENT_VERSION) != 0) {
-				throw new SudokuException(
-						"Unsupported File Descriptor file version"
-								+ version.getNodeValue(),
-								SudokuException.SEVERITY_INFORMATION,
-								SudokuException.DISPOSITION_CONTINUE);
-								
-			}
+            validateDocument(documentElement);
 
-			// Parse the root Node and the only child
+            // Parse the root Node and the only child
 			NodeList rootNodes = documentElement.getChildNodes();
 			if (rootNodes.getLength() != 1) {
 				throw new SudokuException("Invalid File format",
@@ -168,7 +148,31 @@ public class SudokuDocument implements ISudokuDokument {
 		base.cellsChanged(true);
 	}
 
-	private void getParsedDocument() throws ParserConfigurationException, SAXException, IOException {
+    private void validateDocument(Node documentElement) throws SudokuException {
+        if (documentElement.getNodeName().equals(SUDOKU) == false) {
+            throw new SudokuException(" Incorrect file format",
+                    SudokuException.SEVERITY_ERROR,
+                    SudokuException.DISPOSITION_CONTINUE);
+        }
+        NamedNodeMap bsdAttributes = documentElement.getAttributes();
+        Node version = bsdAttributes.getNamedItem(DOCUMENT_VERSION);
+        if (version == null) {
+            throw new SudokuException("File descriptor missing",
+                    SudokuException.SEVERITY_ERROR,
+                    SudokuException.DISPOSITION_CONTINUE);
+        }
+        // Only version 1.0 supported
+        if (version.getNodeValue().compareTo(CURRENT_DOCUMENT_VERSION) != 0) {
+            throw new SudokuException(
+                    "Unsupported File Descriptor file version"
+                            + version.getNodeValue(),
+                            SudokuException.SEVERITY_INFORMATION,
+                            SudokuException.DISPOSITION_CONTINUE);
+
+        }
+    }
+
+    private void getParsedDocument() throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder = factory.newDocumentBuilder();
 		builder.setErrorHandler(getErrorHandler());
