@@ -31,6 +31,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -63,66 +64,18 @@ public class SudokuDocument implements ISudokuDokument {
 		int row = 0;
 		int column = 0;
 
-		if (savefile.canRead() == false) {
-			throw new SudokuException("Document cound not be found: "
-					+ savefile.getAbsolutePath(),
-					SudokuException.DISPOSITION_CONTINUE,
-					SudokuException.SEVERITY_WARNING);
-		}
+        validateCanReadSaveFile();
 
-		// Clear the base
+        // Clear the base
 		base.clear(true);
 
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
-			DocumentBuilder builder = factory.newDocumentBuilder();
-			builder.setErrorHandler(new org.xml.sax.ErrorHandler() {
-
-				// Treat warnings as fatal
-				public void warning(SAXParseException exception)
-						throws SAXException {
-					throw exception;
-				}
-
-				// Treat warnings as fatal
-				public void error(SAXParseException exception)
-						throws SAXException {
-					throw exception;
-				}
-
-				public void fatalError(SAXParseException exception)
-						throws SAXException {
-					// Ignore fatal errors (an exception is guarantied)
-				}
-
-			});
-			document = builder.parse(savefile);
-
+			getParsedDocument();
 			// Validate the document
 			Node documentElement = document.getDocumentElement();
-			if (documentElement.getNodeName().equals(SUDOKU) == false) {
-				throw new SudokuException(" Incorrect file format",
-						SudokuException.SEVERITY_ERROR,
-						SudokuException.DISPOSITION_CONTINUE);
-			}
-			NamedNodeMap bsdAttributes = documentElement.getAttributes();
-			Node version = bsdAttributes.getNamedItem(DOCUMENT_VERSION);
-			if (version == null) {
-				throw new SudokuException("File descriptor missing",
-						SudokuException.SEVERITY_ERROR,
-						SudokuException.DISPOSITION_CONTINUE);
-			}
-			// Only version 1.0 supported
-			if (version.getNodeValue().compareTo(CURRENT_DOCUMENT_VERSION) != 0) {
-				throw new SudokuException(
-						"Unsupported File Descriptor file version"
-								+ version.getNodeValue(),
-								SudokuException.SEVERITY_INFORMATION,
-								SudokuException.DISPOSITION_CONTINUE);
-								
-			}
+            validateDocument(documentElement);
 
-			// Parse the root Node and the only child
+            // Parse the root Node and the only child
 			NodeList rootNodes = documentElement.getChildNodes();
 			if (rootNodes.getLength() != 1) {
 				throw new SudokuException("Invalid File format",
@@ -146,22 +99,7 @@ public class SudokuDocument implements ISudokuDokument {
 					MCell cell = base.getCell(row, column);
 					node = cellAttributes.getNamedItem(VALUE);
 					if (node != null) {
-
-						// Convert the string to a BitSet
-						String stringValue = node.getNodeValue();
-						BitSet value = new BitSet();
-						if (stringValue.length() < 9) {
-							for (int j = 0; j < stringValue.length(); j++) {
-								int x = Character.getNumericValue(stringValue
-										.charAt(j));
-								if ((x > 0) && (x < 10)) {
-									value.set(x - 1);
-								}
-							}
-						} else {
-							// The cell is empty
-							value.set(0, 9);
-						}
+						BitSet value = getBitSet(node);
 						cell.setValue(value);
 					}
 					node = cellAttributes.getNamedItem(STATUS);
@@ -193,6 +131,88 @@ public class SudokuDocument implements ISudokuDokument {
 		}
 		// Notify all cells
 		base.cellsChanged(true);
+	}
+
+	private BitSet getBitSet(Node node) {
+		String stringValue = node.getNodeValue();
+		BitSet value = new BitSet();
+
+		if (stringValue.length() < 9) {
+			for (int j = 0; j < stringValue.length(); j++) {
+				int x = Character.getNumericValue(stringValue
+						.charAt(j));
+				if ((x > 0) && (x < 10)) {
+					value.set(x - 1);
+				}
+			}
+		} else {
+			// The cell is empty
+			value.set(0, 9);
+		}
+		return value;
+	}
+
+	private void validateDocument(Node documentElement) throws SudokuException {
+        if (documentElement.getNodeName().equals(SUDOKU) == false) {
+            throw new SudokuException(" Incorrect file format",
+                    SudokuException.SEVERITY_ERROR,
+                    SudokuException.DISPOSITION_CONTINUE);
+        }
+        NamedNodeMap bsdAttributes = documentElement.getAttributes();
+        Node version = bsdAttributes.getNamedItem(DOCUMENT_VERSION);
+        if (version == null) {
+            throw new SudokuException("File descriptor missing",
+                    SudokuException.SEVERITY_ERROR,
+                    SudokuException.DISPOSITION_CONTINUE);
+        }
+        // Only version 1.0 supported
+        if (version.getNodeValue().compareTo(CURRENT_DOCUMENT_VERSION) != 0) {
+            throw new SudokuException(
+                    "Unsupported File Descriptor file version"
+                            + version.getNodeValue(),
+                            SudokuException.SEVERITY_INFORMATION,
+                            SudokuException.DISPOSITION_CONTINUE);
+
+        }
+    }
+
+    private void getParsedDocument() throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		builder.setErrorHandler(getErrorHandler());
+		document = builder.parse(savefile);
+	}
+
+	private void validateCanReadSaveFile() throws SudokuException {
+        if (savefile.canRead() == false) {
+            throw new SudokuException("Document cound not be found: "
+                    + savefile.getAbsolutePath(),
+                    SudokuException.DISPOSITION_CONTINUE,
+                    SudokuException.SEVERITY_WARNING);
+        }
+    }
+
+    private ErrorHandler getErrorHandler() {
+		return new ErrorHandler() {
+
+			// Treat warnings as fatal
+			public void warning(SAXParseException exception)
+					throws SAXException {
+				throw exception;
+			}
+
+			// Treat warnings as fatal
+			public void error(SAXParseException exception)
+					throws SAXException {
+				throw exception;
+			}
+
+			public void fatalError(SAXParseException exception)
+					throws SAXException {
+				// Ignore fatal errors (an exception is guarantied)
+			}
+
+		};
 	}
 
 	/**

@@ -1,0 +1,11 @@
+# VS code personal configurations
+.vscode/
+
+# Java class
+*.class
+
+# Log files
+*.log 
+
+# GUI generated files
+*.pro
