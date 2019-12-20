@@ -5,7 +5,6 @@ import java.util.Vector;
 
 import com.vitting.rcpsudoku.model.IRule;
 import com.vitting.rcpsudoku.model.MCell;
-import com.vitting.rcpsudoku.model.SCell;
 import com.vitting.rcpsudoku.model.SudokuBase;
 import com.vitting.rcpsudoku.model.SudokuException;
 
@@ -122,6 +121,65 @@ final public class Rule4 {
 	    // No result found, restore the cell
 	    cell.restore();
 	    return IRule.RULE_NOT_POSSIBLE;
+	}
+    }
+
+    /**
+         *
+         * SCell (SolverCell) holds solver information for a Sudoku cell
+         */
+    final public class SCell {
+	MCell cell;
+
+	private BitSet originalValue;
+
+	int index;
+
+	/**
+         * Constructor
+         *
+         * @param cell
+         *                MCell - the original game cell
+         */
+	SCell(MCell cell) {
+	    this.cell = cell;
+	    originalValue = (BitSet) cell.getContent().getValue().clone();
+	    index = 0;
+	}
+
+	/**
+         * Try the next possible solution for the cell
+         *
+         * @return boolean - true if move possible
+         */
+	public boolean moveForward() {
+	    int nextTry = originalValue.nextSetBit(index);
+//	    { // DEBUG -- Rule 4 moveForward
+//		System.out.println("(" + cell.getRow() + "." + cell.getColumn()
+//		    + ") " + originalValue + " Next bit: " + nextTry);
+//	    }
+	    if (nextTry == -1) {
+		// No more possibilities
+		return false;
+	    }
+	    cell.setValue(nextTry);
+	    index = nextTry + 1;
+	    return true;
+	}
+
+	/**
+         * restore the cell content to its original value
+         */
+	public void restore() {
+	    cell.setValue((BitSet) originalValue.clone());
+	    index = 0;
+	}
+
+	/**
+         * @return MCell - the MCell reference
+         */
+	public MCell getCell() {
+	    return cell;
 	}
     }
 }
