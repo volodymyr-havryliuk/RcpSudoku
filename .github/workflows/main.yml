@@ -1,0 +1,15 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Compilation
+      run: javac -Xlint:unchecked $(find . -name "*.java")
+    #- name: Run
+    #  run: cd src && java com/vitting/rcpsudoku/jfc/MainWindow
