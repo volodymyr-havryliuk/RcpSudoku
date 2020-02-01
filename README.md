@@ -5,5 +5,7 @@
 ## Students
 
 Volodymyr Havryliuk
+
 Sylvain Michel
+
 Daniel Craviee de Abreu Vieira
